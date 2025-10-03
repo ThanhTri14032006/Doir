@@ -179,6 +179,15 @@ CREATE TABLE IF NOT EXISTS reviews (
   INDEX idx_user_id (user_id)
 );
 
+-- Bảng lưu liên hệ khách hàng từ trang Liên hệ
+CREATE TABLE IF NOT EXISTS customer_contacts (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- DỮ LIỆU MẪU
 -- Categories
 INSERT IGNORE INTO categories (id, name, slug, description, image_url) VALUES

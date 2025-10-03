@@ -6,15 +6,34 @@ import pool from '../config/database';
 const setupDatabase = async () => {
   try {
     console.log('🔧 Setting up database...');
-    
-    const schemaPath = path.join(__dirname, 'schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
-    
-    const statements = schema
+
+    // Support multiple possible schema files
+    const candidateFiles = [
+      'schema.sql',
+      'schema1.sql',
+      'account.sql',
+      'remoto.sql'
+    ];
+
+    const existingFiles = candidateFiles
+      .map((name) => ({ name, fullPath: path.join(__dirname, name) }))
+      .filter(({ fullPath }) => fs.existsSync(fullPath));
+
+    if (existingFiles.length === 0) {
+      throw new Error(`No schema file found. Looked for: ${candidateFiles.join(', ')}`);
+    }
+
+    let combinedSql = '';
+    for (const { name, fullPath } of existingFiles) {
+      console.log(`📄 Loading schema file: ${name}`);
+      combinedSql += '\n' + fs.readFileSync(fullPath, 'utf8');
+    }
+
+    const statements = combinedSql
       .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => stmt.length > 0);
-    
+      .map((stmt) => stmt.trim())
+      .filter((stmt) => stmt.length > 0);
+
     for (const statement of statements) {
       await pool.query(statement);
     }
